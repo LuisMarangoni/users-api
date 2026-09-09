@@ -119,5 +119,29 @@ public class UsuarioService {
         return UsuarioResponse.from(usuarioSalvo);
     }
 
+    @Transactional
+    public UsuarioResponse adicionarPerfil(
+            Long usuarioId,
+            NomePerfil nomePerfil
+    ) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(
+                        () -> new UsuarioNaoEncontradoException(usuarioId)
+                );
+
+        Perfil perfil = perfilRepository.findByNome(nomePerfil)
+                .orElseThrow(
+                        () -> new IllegalStateException(
+                                "Perfil não encontrado: " + nomePerfil
+                        )
+                );
+
+        usuario.adicionarPerfil(perfil);
+
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
+
+        return UsuarioResponse.from(usuarioSalvo);
+    }
+
 }
 

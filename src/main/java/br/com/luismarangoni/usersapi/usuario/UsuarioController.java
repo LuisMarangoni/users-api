@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import br.com.luismarangoni.usersapi.usuario.dto.AtualizarUsuarioRequest;
 import org.springframework.web.bind.annotation.PutMapping;
+import br.com.luismarangoni.usersapi.perfil.NomePerfil;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -65,6 +66,14 @@ public class UsuarioController {
                 id,
                 request.ativo()
         );
+    }
+
+    @PutMapping("/{id}/perfis/{nomePerfil}")
+    public UsuarioResponse adicionarPerfil(
+            @PathVariable Long id,
+            @PathVariable NomePerfil nomePerfil
+    ) {
+        return usuarioService.adicionarPerfil(id, nomePerfil);
     }
 
 }
