@@ -58,4 +58,10 @@ public class Usuario {
     public LocalDateTime getDataCriacao() {
         return dataCriacao;
     }
+
+    public void atualizarDados(String novoNome, String novoEmail) {
+        this.nome = novoNome;
+        this.email = novoEmail;
+    }
+
 }

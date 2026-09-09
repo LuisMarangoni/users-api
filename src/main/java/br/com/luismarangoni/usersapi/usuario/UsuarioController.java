@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
+import br.com.luismarangoni.usersapi.usuario.dto.AtualizarUsuarioRequest;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -44,4 +46,13 @@ public class UsuarioController {
     ) {
         return usuarioService.criar(request);
     }
+
+    @PutMapping("/{id}")
+    public UsuarioResponse atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody AtualizarUsuarioRequest request
+    ) {
+        return usuarioService.atualizar(id, request);
+    }
+
 }

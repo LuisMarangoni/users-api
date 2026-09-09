@@ -1,5 +1,6 @@
 package br.com.luismarangoni.usersapi.usuario;
 
+import br.com.luismarangoni.usersapi.usuario.dto.AtualizarUsuarioRequest;
 import br.com.luismarangoni.usersapi.usuario.dto.CriarUsuarioRequest;
 import br.com.luismarangoni.usersapi.usuario.dto.UsuarioResponse;
 import org.springframework.stereotype.Service;
@@ -51,4 +52,36 @@ public class UsuarioService {
 
         return UsuarioResponse.from(usuarioSalvo);
     }
+
+    public UsuarioResponse atualizar(
+            Long id,
+            AtualizarUsuarioRequest request
+    ) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(
+                        () -> new UsuarioNaoEncontradoException(id)
+                );
+
+        String nomeNormalizado = request.nome().trim();
+        String emailNormalizado = request.email()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        if (usuarioRepository.existsByEmailIgnoreCaseAndIdNot(
+                emailNormalizado,
+                id
+        )) {
+            throw new EmailJaCadastradoException(emailNormalizado);
+        }
+
+        usuario.atualizarDados(
+                nomeNormalizado,
+                emailNormalizado
+        );
+
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
+
+        return UsuarioResponse.from(usuarioSalvo);
+    }
+
 }
