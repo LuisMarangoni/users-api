@@ -1,0 +1,59 @@
+package br.com.luismarangoni.usersapi.infra;
+
+import br.com.luismarangoni.usersapi.usuario.EmailJaCadastradoException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class TratadorGlobalDeErros {
+
+    @ExceptionHandler(EmailJaCadastradoException.class)
+    public ResponseEntity<ProblemDetail> tratarEmailJaCadastrado(
+            EmailJaCadastradoException exception
+    ) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+        problema.setTitle("E-mail já cadastrado");
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(problema);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ProblemDetail> tratarValidacao(
+            MethodArgumentNotValidException exception
+    ) {
+        Map<String, String> campos = new LinkedHashMap<>();
+
+        for (FieldError erro : exception.getBindingResult().getFieldErrors()) {
+            campos.putIfAbsent(
+                    erro.getField(),
+                    erro.getDefaultMessage()
+            );
+        }
+
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Um ou mais campos possuem valores inválidos"
+        );
+
+        problema.setTitle("Dados inválidos");
+        problema.setProperty("campos", campos);
+
+        return ResponseEntity
+                .badRequest()
+                .body(problema);
+    }
+}
