@@ -1,5 +1,7 @@
 # Users API
 
+[![CI](https://github.com/LuisMarangoni/users-api/actions/workflows/ci.yml/badge.svg)](https://github.com/LuisMarangoni/users-api/actions/workflows/ci.yml)
+
 API REST para gerenciamento de usuários e perfis, desenvolvida com Java, Spring Boot e PostgreSQL.
 
 O projeto demonstra cadastro e manutenção de usuários, validação de e-mail, desativação lógica e relacionamento muitos-para-muitos com perfis.
