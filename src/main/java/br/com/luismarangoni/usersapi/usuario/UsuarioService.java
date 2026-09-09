@@ -1,0 +1,45 @@
+package br.com.luismarangoni.usersapi.usuario;
+
+import br.com.luismarangoni.usersapi.usuario.dto.CriarUsuarioRequest;
+import br.com.luismarangoni.usersapi.usuario.dto.UsuarioResponse;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Locale;
+
+@Service
+public class UsuarioService {
+
+    private final UsuarioRepository usuarioRepository;
+
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
+
+    public List<UsuarioResponse> listar() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(UsuarioResponse::from)
+                .toList();
+    }
+
+    public UsuarioResponse criar(CriarUsuarioRequest request) {
+        String nomeNormalizado = request.nome().trim();
+        String emailNormalizado = request.email()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        if (usuarioRepository.existsByEmailIgnoreCase(emailNormalizado)) {
+            throw new EmailJaCadastradoException(emailNormalizado);
+        }
+
+        Usuario usuario = new Usuario(
+                nomeNormalizado,
+                emailNormalizado
+        );
+
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
+
+        return UsuarioResponse.from(usuarioSalvo);
+    }
+}
