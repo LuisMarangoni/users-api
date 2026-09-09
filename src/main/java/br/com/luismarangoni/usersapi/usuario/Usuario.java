@@ -6,6 +6,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import br.com.luismarangoni.usersapi.perfil.Perfil;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import java.time.LocalDateTime;
 
@@ -59,6 +66,14 @@ public class Usuario {
         return dataCriacao;
     }
 
+    @ManyToMany
+    @JoinTable(
+            name = "usuarios_perfis",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "perfil_id")
+    )
+    private Set<Perfil> perfis = new HashSet<>();
+
     public void atualizarDados(String novoNome, String novoEmail) {
         this.nome = novoNome;
         this.email = novoEmail;
@@ -66,6 +81,14 @@ public class Usuario {
 
     public void atualizarAtivo(boolean novoAtivo) {
         this.ativo = novoAtivo;
+    }
+
+    public Set<Perfil> getPerfis() {
+        return Set.copyOf(perfis);
+    }
+
+    public void adicionarPerfil(Perfil perfil) {
+        perfis.add(perfil);
     }
 
 }

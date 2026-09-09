@@ -4,17 +4,27 @@ import br.com.luismarangoni.usersapi.usuario.dto.AtualizarUsuarioRequest;
 import br.com.luismarangoni.usersapi.usuario.dto.CriarUsuarioRequest;
 import br.com.luismarangoni.usersapi.usuario.dto.UsuarioResponse;
 import org.springframework.stereotype.Service;
-
+import br.com.luismarangoni.usersapi.perfil.NomePerfil;
+import br.com.luismarangoni.usersapi.perfil.Perfil;
+import br.com.luismarangoni.usersapi.perfil.PerfilRepository;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Locale;
 
+
 @Service
+@Transactional(readOnly = true)
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PerfilRepository perfilRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(
+            UsuarioRepository usuarioRepository,
+            PerfilRepository perfilRepository
+    ) {
         this.usuarioRepository = usuarioRepository;
+        this.perfilRepository = perfilRepository;
     }
 
     public List<UsuarioResponse> listar() {
@@ -32,7 +42,7 @@ public class UsuarioService {
 
         return UsuarioResponse.from(usuario);
     }
-
+    @Transactional
     public UsuarioResponse criar(CriarUsuarioRequest request) {
         String nomeNormalizado = request.nome().trim();
         String emailNormalizado = request.email()
@@ -43,16 +53,25 @@ public class UsuarioService {
             throw new EmailJaCadastradoException(emailNormalizado);
         }
 
+        Perfil perfilPadrao = perfilRepository
+                .findByNome(NomePerfil.USUARIO)
+                .orElseThrow(
+                        () -> new IllegalStateException(
+                                "Perfil padrão USUARIO não encontrado"
+                        )
+                );
+
         Usuario usuario = new Usuario(
                 nomeNormalizado,
                 emailNormalizado
         );
 
+        usuario.adicionarPerfil(perfilPadrao);
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
         return UsuarioResponse.from(usuarioSalvo);
     }
-
+    @Transactional
     public UsuarioResponse atualizar(
             Long id,
             AtualizarUsuarioRequest request
@@ -83,7 +102,7 @@ public class UsuarioService {
 
         return UsuarioResponse.from(usuarioSalvo);
     }
-
+    @Transactional
     public UsuarioResponse atualizarAtivo(
             Long id,
             boolean novoAtivo
@@ -101,3 +120,4 @@ public class UsuarioService {
     }
 
 }
+
