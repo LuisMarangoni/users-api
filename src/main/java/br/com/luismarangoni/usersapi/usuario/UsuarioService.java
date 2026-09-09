@@ -23,6 +23,15 @@ public class UsuarioService {
                 .toList();
     }
 
+    public UsuarioResponse buscarPorId(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(
+                        () -> new UsuarioNaoEncontradoException(id)
+                );
+
+        return UsuarioResponse.from(usuario);
+    }
+
     public UsuarioResponse criar(CriarUsuarioRequest request) {
         String nomeNormalizado = request.nome().trim();
         String emailNormalizado = request.email()

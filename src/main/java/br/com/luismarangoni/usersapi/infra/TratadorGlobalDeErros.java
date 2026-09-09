@@ -1,5 +1,7 @@
 package br.com.luismarangoni.usersapi.infra;
 
+
+import br.com.luismarangoni.usersapi.usuario.UsuarioNaoEncontradoException;
 import br.com.luismarangoni.usersapi.usuario.EmailJaCadastradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -56,4 +58,21 @@ public class TratadorGlobalDeErros {
                 .badRequest()
                 .body(problema);
     }
+
+    @ExceptionHandler(UsuarioNaoEncontradoException.class)
+    public ResponseEntity<ProblemDetail> tratarUsuarioNaoEncontrado(
+            UsuarioNaoEncontradoException exception
+    ) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                exception.getMessage()
+        );
+
+        problema.setTitle("Usuário não encontrado");
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(problema);
+    }
+
 }
