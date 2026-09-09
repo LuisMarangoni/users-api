@@ -84,4 +84,20 @@ public class UsuarioService {
         return UsuarioResponse.from(usuarioSalvo);
     }
 
+    public UsuarioResponse atualizarAtivo(
+            Long id,
+            boolean novoAtivo
+    ) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(
+                        () -> new UsuarioNaoEncontradoException(id)
+                );
+
+        usuario.atualizarAtivo(novoAtivo);
+
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
+
+        return UsuarioResponse.from(usuarioSalvo);
+    }
+
 }

@@ -4,7 +4,8 @@ package br.com.luismarangoni.usersapi.usuario;
 
 import br.com.luismarangoni.usersapi.usuario.dto.CriarUsuarioRequest;
 import br.com.luismarangoni.usersapi.usuario.dto.UsuarioResponse;
-
+import br.com.luismarangoni.usersapi.usuario.dto.AtualizarAtivoRequest;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,6 +54,17 @@ public class UsuarioController {
             @Valid @RequestBody AtualizarUsuarioRequest request
     ) {
         return usuarioService.atualizar(id, request);
+    }
+
+    @PatchMapping("/{id}/ativo")
+    public UsuarioResponse atualizarAtivo(
+            @PathVariable Long id,
+            @Valid @RequestBody AtualizarAtivoRequest request
+    ) {
+        return usuarioService.atualizarAtivo(
+                id,
+                request.ativo()
+        );
     }
 
 }

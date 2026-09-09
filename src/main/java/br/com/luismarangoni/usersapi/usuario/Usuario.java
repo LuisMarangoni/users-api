@@ -64,4 +64,8 @@ public class Usuario {
         this.email = novoEmail;
     }
 
+    public void atualizarAtivo(boolean novoAtivo) {
+        this.ativo = novoAtivo;
+    }
+
 }
