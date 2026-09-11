@@ -3,6 +3,7 @@ package br.com.luismarangoni.usersapi.infra;
 
 import br.com.luismarangoni.usersapi.usuario.UsuarioNaoEncontradoException;
 import br.com.luismarangoni.usersapi.usuario.EmailJaCadastradoException;
+import br.com.luismarangoni.usersapi.usuario.CredenciaisInvalidasException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,22 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class TratadorGlobalDeErros {
+
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<ProblemDetail> tratarCredenciaisInvalidas(
+            CredenciaisInvalidasException exception
+    ) {
+        ProblemDetail problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                exception.getMessage()
+        );
+
+        problema.setTitle("Credenciais inválidas");
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(problema);
+    }
 
     @ExceptionHandler(EmailJaCadastradoException.class)
     public ResponseEntity<ProblemDetail> tratarEmailJaCadastrado(

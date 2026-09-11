@@ -10,6 +10,7 @@ import br.com.luismarangoni.usersapi.perfil.Perfil;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -57,6 +58,17 @@ public class Usuario {
     public String getEmail() {
         return email;
     }
+    @JsonIgnore
+    public String getSenhaHash() {
+        return senhaHash;
+    }
+
+    void definirSenhaHash(String senhaHash) {
+        this.senhaHash = senhaHash;
+    }
+
+    @Column(name = "senha_hash", length = 100)
+    private String senhaHash;
 
     public boolean isAtivo() {
         return ativo;

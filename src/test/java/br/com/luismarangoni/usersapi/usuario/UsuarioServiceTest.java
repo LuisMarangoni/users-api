@@ -10,7 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,11 +34,15 @@ class UsuarioServiceTest {
     @InjectMocks
     private UsuarioService usuarioService;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @Test
     void deveCriarUsuarioComEmailNormalizadoEPerfilPadrao() {
         CriarUsuarioRequest request = new CriarUsuarioRequest(
                 "  Luis Marangoni  ",
-                "  LUIS@EMAIL.COM  "
+                "  LUIS@EMAIL.COM  ",
+                "senha-segura"
         );
 
         Perfil perfilPadrao = new Perfil(NomePerfil.USUARIO);
@@ -66,7 +70,8 @@ class UsuarioServiceTest {
     void naoDeveCriarUsuarioComEmailDuplicado() {
         CriarUsuarioRequest request = new CriarUsuarioRequest(
                 "Luis Marangoni",
-                "luis@email.com"
+                "luis@email.com",
+                "senha-segura"
         );
 
         when(usuarioRepository.existsByEmailIgnoreCase("luis@email.com"))

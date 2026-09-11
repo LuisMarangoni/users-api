@@ -1,5 +1,8 @@
 package br.com.luismarangoni.usersapi.usuario;
 
+
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import br.com.luismarangoni.usersapi.usuario.dto.AtualizarUsuarioRequest;
 import br.com.luismarangoni.usersapi.usuario.dto.CriarUsuarioRequest;
 import br.com.luismarangoni.usersapi.usuario.dto.UsuarioResponse;
@@ -18,13 +21,16 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PerfilRepository perfilRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
-            PerfilRepository perfilRepository
+            PerfilRepository perfilRepository,
+            PasswordEncoder passwordEncoder
     ) {
         this.usuarioRepository = usuarioRepository;
         this.perfilRepository = perfilRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<UsuarioResponse> listar() {
@@ -65,6 +71,9 @@ public class UsuarioService {
                 nomeNormalizado,
                 emailNormalizado
         );
+
+        String senhaHash = passwordEncoder.encode(request.senha());
+        usuario.definirSenhaHash(senhaHash);
 
         usuario.adicionarPerfil(perfilPadrao);
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
