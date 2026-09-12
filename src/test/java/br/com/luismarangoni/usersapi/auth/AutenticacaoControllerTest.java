@@ -1,16 +1,24 @@
 package br.com.luismarangoni.usersapi.auth;
 
+
+import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import br.com.luismarangoni.usersapi.perfil.NomePerfil;
+import br.com.luismarangoni.usersapi.perfil.Perfil;
+import br.com.luismarangoni.usersapi.perfil.PerfilRepository;
+import br.com.luismarangoni.usersapi.usuario.Usuario;
+import br.com.luismarangoni.usersapi.usuario.UsuarioRepository;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -18,9 +26,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class AutenticacaoControllerTest {
 
     private static final String SENHA = "SenhaTeste123";
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PerfilRepository perfilRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,9 +74,50 @@ class AutenticacaoControllerTest {
     @Test
     void devePermitirAcessoARotaProtegidaComTokenValido() throws Exception {
         String email = criarUsuario();
+        atribuirPerfil(email, NomePerfil.SUPORTE);
         String token = obterToken(email, SENHA);
 
         mockMvc.perform(get("/usuarios")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deveNegarListagemParaUsuarioComPerfilComum() throws Exception {
+        String email = criarUsuario();
+        String token = obterToken(email, SENHA);
+
+        mockMvc.perform(get("/usuarios")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deveNegarAtribuicaoDePerfilParaUsuarioComum() throws Exception {
+        String email = criarUsuario();
+        String emailAlvo = criarUsuario();
+        Long idAlvo = usuarioRepository.findByEmailIgnoreCase(emailAlvo)
+                .orElseThrow()
+                .getId();
+        String token = obterToken(email, SENHA);
+
+        mockMvc.perform(put("/usuarios/{id}/perfis/ADMIN", idAlvo)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void devePermitirAtribuicaoDePerfilParaAdmin() throws Exception {
+        String emailAdmin = criarUsuario();
+        atribuirPerfil(emailAdmin, NomePerfil.ADMIN);
+
+        String emailAlvo = criarUsuario();
+        Long idAlvo = usuarioRepository.findByEmailIgnoreCase(emailAlvo)
+                .orElseThrow()
+                .getId();
+        String token = obterToken(emailAdmin, SENHA);
+
+        mockMvc.perform(put("/usuarios/{id}/perfis/SUPORTE", idAlvo)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
     }
@@ -109,4 +165,15 @@ class AutenticacaoControllerTest {
                 }
                 """.formatted(email, senha);
     }
+
+    private void atribuirPerfil(String email, NomePerfil nomePerfil) {
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email)
+                .orElseThrow();
+        Perfil perfil = perfilRepository.findByNome(nomePerfil)
+                .orElseThrow();
+
+        usuario.adicionarPerfil(perfil);
+        usuarioRepository.save(usuario);
+    }
+
 }

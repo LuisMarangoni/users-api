@@ -48,7 +48,8 @@ Todo novo usuário recebe automaticamente o perfil `USUARIO`.
 
 Um usuário pode possuir vários perfis, e cada perfil pode pertencer a vários usuários. Esse relacionamento é armazenado pela tabela intermediária `usuarios_perfis`.
 
-Os perfis ainda não controlam autorização de endpoints. A autenticação JWT já protege as rotas privadas. Os perfis são atribuídos aos usuários, mas ainda não definem permissões específicas por endpoint.
+A autenticação é feita por JWT. Cadastro, login e documentação Swagger são públicos. O perfil USUARIO pode autenticar, mas não acessa os endpoints de administração de usuários. SUPORTE e ADMIN podem consultar, atualizar e ativar ou desativar usuários. Apenas ADMIN pode atribuir perfis.
+
 
 ## Estrutura
 

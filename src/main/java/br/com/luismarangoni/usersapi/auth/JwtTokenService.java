@@ -6,6 +6,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -22,11 +23,10 @@ public class JwtTokenService {
         Instant agora = Instant.now();
         Instant expiracao = agora.plus(1, ChronoUnit.HOURS);
 
-        String perfis = usuario.getPerfis().stream()
+        List<String> perfis = usuario.getPerfis().stream()
                 .map(perfil -> perfil.getNome().name())
                 .sorted()
-                .reduce((primeiro, segundo) -> primeiro + "," + segundo)
-                .orElse("");
+                .toList();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("users-api")
