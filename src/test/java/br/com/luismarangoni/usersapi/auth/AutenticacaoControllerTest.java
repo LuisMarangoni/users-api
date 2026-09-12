@@ -138,6 +138,17 @@ class AutenticacaoControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    void devePermitirQueUsuarioConsulteProprioPerfil() throws Exception {
+        String email = criarUsuario();
+        String token = obterToken(email, SENHA);
+
+        mockMvc.perform(get("/usuarios/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(email));
+    }
+
     private String criarUsuario() throws Exception {
         String email = "mockmvc-" + UUID.randomUUID() + "@email.com";
         String corpo = """

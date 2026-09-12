@@ -139,15 +139,16 @@ Com a aplicação em execução:
 
 ## Endpoints
 
-| Método   | Endpoint                             | Descrição |
-|----------|--------------------------------------|---|
-| `POST`   | `/usuarios`                          | Cadastra um usuário |
-| `GET`    | `/usuarios`                          | Lista os usuários |
-| `GET`    | `/usuarios/{id}`                     | Busca um usuário por ID |
-| `PUT`    | `/usuarios/{id}`                     | Atualiza nome e e-mail |
-| `PATCH`  | `/usuarios/{id}/ativo`               | Ativa ou desativa um usuário |
-| `PUT`    | `/usuarios/{id}/perfis/{nomePerfil}` | Atribui um perfil ao usuário |
-| `POST`   | `/auth/login`                        | Autentica e obtem um token |
+| Método  | Endpoint                             | Descrição                                        |
+|---------|--------------------------------------|--------------------------------------------------|
+| `POST`  | `/usuarios`                          | Cadastra um usuário                              |
+| `GET`   | `/usuarios`                          | Lista os usuários                                |
+| `GET`   | `/usuarios/{id}`                     | Busca um usuário por ID                          |
+| `PUT`   | `/usuarios/{id}`                     | Atualiza nome e e-mail                           |
+| `PATCH` | `/usuarios/{id}/ativo`               | Ativa ou desativa um usuário                     |
+| `PUT`   | `/usuarios/{id}/perfis/{nomePerfil}` | Atribui um perfil ao usuário                     |
+| `POST`  | `/auth/login`                        | Autentica e obtém um token                       |
+| `GET`   | `/usuarios/me`                       | Retorna os dados do usuário autenticado pelo JWT |
 
 
 ## Exemplo de cadastro

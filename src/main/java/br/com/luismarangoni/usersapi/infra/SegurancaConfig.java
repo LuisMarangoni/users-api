@@ -79,6 +79,7 @@ public class SegurancaConfig {
 
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*/perfis/*")
                         .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/usuarios/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/usuarios", "/usuarios/*")
                         .hasAnyRole("SUPORTE", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*")

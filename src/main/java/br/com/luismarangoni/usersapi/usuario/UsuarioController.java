@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import br.com.luismarangoni.usersapi.usuario.dto.AtualizarUsuarioRequest;
 import org.springframework.web.bind.annotation.PutMapping;
 import br.com.luismarangoni.usersapi.perfil.NomePerfil;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -41,6 +43,13 @@ public class UsuarioController {
     @GetMapping("/{id}")
     public UsuarioResponse buscarPorId(@PathVariable Long id) {
         return usuarioService.buscarPorId(id);
+    }
+
+    @GetMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    public UsuarioResponse buscarMeuPerfil(@AuthenticationPrincipal Jwt jwt) {
+        Long idUsuario = Long.valueOf(jwt.getSubject());
+        return usuarioService.buscarPorId(idUsuario);
     }
 
     @PostMapping
