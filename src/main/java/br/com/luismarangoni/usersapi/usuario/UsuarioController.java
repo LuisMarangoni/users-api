@@ -1,7 +1,7 @@
 package br.com.luismarangoni.usersapi.usuario;
 
 
-
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import br.com.luismarangoni.usersapi.usuario.dto.CriarUsuarioRequest;
 import br.com.luismarangoni.usersapi.usuario.dto.UsuarioResponse;
 import br.com.luismarangoni.usersapi.usuario.dto.AtualizarAtivoRequest;
@@ -32,10 +32,12 @@ public class UsuarioController {
     }
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     public List<UsuarioResponse> listar() {
         return usuarioService.listar();
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{id}")
     public UsuarioResponse buscarPorId(@PathVariable Long id) {
         return usuarioService.buscarPorId(id);
@@ -49,6 +51,7 @@ public class UsuarioController {
         return usuarioService.criar(request);
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}")
     public UsuarioResponse atualizar(
             @PathVariable Long id,
@@ -57,6 +60,7 @@ public class UsuarioController {
         return usuarioService.atualizar(id, request);
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @PatchMapping("/{id}/ativo")
     public UsuarioResponse atualizarAtivo(
             @PathVariable Long id,
@@ -68,6 +72,7 @@ public class UsuarioController {
         );
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}/perfis/{nomePerfil}")
     public UsuarioResponse adicionarPerfil(
             @PathVariable Long id,
