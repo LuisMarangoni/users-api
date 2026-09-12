@@ -122,6 +122,22 @@ class AutenticacaoControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void deveNegarAtribuicaoDePerfilParaSuporte() throws Exception {
+        String emailSuporte = criarUsuario();
+        atribuirPerfil(emailSuporte, NomePerfil.SUPORTE);
+
+        String emailAlvo = criarUsuario();
+        Long idAlvo = usuarioRepository.findByEmailIgnoreCase(emailAlvo)
+                .orElseThrow()
+                .getId();
+        String token = obterToken(emailSuporte, SENHA);
+
+        mockMvc.perform(put("/usuarios/{id}/perfis/ADMIN", idAlvo)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+    }
+
     private String criarUsuario() throws Exception {
         String email = "mockmvc-" + UUID.randomUUID() + "@email.com";
         String corpo = """
