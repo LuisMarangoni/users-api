@@ -48,7 +48,7 @@ Todo novo usuário recebe automaticamente o perfil `USUARIO`.
 
 Um usuário pode possuir vários perfis, e cada perfil pode pertencer a vários usuários. Esse relacionamento é armazenado pela tabela intermediária `usuarios_perfis`.
 
-Os perfis ainda não controlam autorização de endpoints. A autenticação e autorização com Spring Security e JWT fazem parte da evolução planejada.
+Os perfis ainda não controlam autorização de endpoints. A autenticação JWT já protege as rotas privadas. Os perfis são atribuídos aos usuários, mas ainda não definem permissões específicas por endpoint.
 
 ## Estrutura
 
@@ -135,16 +135,19 @@ Com a aplicação em execução:
 - Swagger UI: http://localhost:8081/swagger-ui.html
 - OpenAPI JSON: http://localhost:8081/v3/api-docs
 
+
 ## Endpoints
 
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `POST` | `/usuarios` | Cadastra um usuário |
-| `GET` | `/usuarios` | Lista os usuários |
-| `GET` | `/usuarios/{id}` | Busca um usuário por ID |
-| `PUT` | `/usuarios/{id}` | Atualiza nome e e-mail |
-| `PATCH` | `/usuarios/{id}/ativo` | Ativa ou desativa um usuário |
-| `PUT` | `/usuarios/{id}/perfis/{nomePerfil}` | Atribui um perfil ao usuário |
+| Método   | Endpoint                             | Descrição |
+|----------|--------------------------------------|---|
+| `POST`   | `/usuarios`                          | Cadastra um usuário |
+| `GET`    | `/usuarios`                          | Lista os usuários |
+| `GET`    | `/usuarios/{id}`                     | Busca um usuário por ID |
+| `PUT`    | `/usuarios/{id}`                     | Atualiza nome e e-mail |
+| `PATCH`  | `/usuarios/{id}/ativo`               | Ativa ou desativa um usuário |
+| `PUT`    | `/usuarios/{id}/perfis/{nomePerfil}` | Atribui um perfil ao usuário |
+| `POST`   | `/auth/login`                        | Autentica e obtem um token |
+
 
 ## Exemplo de cadastro
 
@@ -156,7 +159,8 @@ Content-Type: application/json
 ```json
 {
   "nome": "Luis Marangoni",
-  "email": "luis@email.com"
+  "email": "luis@email.com",
+  "senha": "SenhaTeste123"
 }
 ```
 
@@ -175,15 +179,42 @@ Resposta:
 }
 ```
 
+
+## Autenticação JWT
+
+```http
+POST /auth/login
+Content-Type: application/json
+```
+
+```json
+{
+  "email": "luis@email.com",
+  "senha": "SenhaTeste123"
+}
+```
+
+Resposta:
+
+```json
+{
+  "tipo": "Bearer",
+  "token": "<token-jwt>"
+}
+```
+As rotas protegidas recebem Authorization: Bearer <token-jwt>. Cadastro e login são públicos; as demais rotas de usuários exigem token
+
+
 ## Códigos de resposta
 
-| Código | Significado |
-|---|---|
-| `200 OK` | Consulta ou atualização concluída |
-| `201 Created` | Usuário criado |
-| `400 Bad Request` | Dados inválidos |
-| `404 Not Found` | Usuário não encontrado |
-| `409 Conflict` | E-mail já cadastrado |
+| Código | Significado                                      |
+|---|--------------------------------------------------|
+| `200 OK` | Consulta ou atualização concluída                |
+| `201 Created` | Usuário criado                                   |
+| `400 Bad Request` | Dados inválidos                                  |
+| `404 Not Found` | Usuário não encontrado                           |
+| `409 Conflict` | E-mail já cadastrado                             |
+| `401 Unauthorized` | Token ausente/inválido ou credenciais incorretas |
 
 ## Testes
 
@@ -203,6 +234,7 @@ Os testes verificam:
 - atribuição do perfil padrão;
 - bloqueio de e-mail duplicado;
 - interrupção do fluxo antes da persistência em caso de duplicidade.
+- testes de login e acesso a rota protegida com e sem token.
 
 ## Decisões técnicas
 
