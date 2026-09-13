@@ -149,6 +149,7 @@ Com a aplicação em execução:
 | `PUT`   | `/usuarios/{id}/perfis/{nomePerfil}` | Atribui um perfil ao usuário                     |
 | `POST`  | `/auth/login`                        | Autentica e obtém um token                       |
 | `GET`   | `/usuarios/me`                       | Retorna os dados do usuário autenticado pelo JWT |
+| `PUT`   | `/usuarios/me`                       | Atualiza nome e e-mail do usuário autenticado |
 
 
 ## Exemplo de cadastro

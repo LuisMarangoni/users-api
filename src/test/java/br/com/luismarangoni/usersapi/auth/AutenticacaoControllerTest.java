@@ -149,6 +149,27 @@ class AutenticacaoControllerTest {
                 .andExpect(jsonPath("$.email").value(email));
     }
 
+    @Test
+    void devePermitirUsuarioAtualizarProprioPerfil() throws Exception {
+        String email = criarUsuario();
+        String token = obterToken(email, SENHA);
+        String novoEmail = "atualizado-" + UUID.randomUUID() + "@email.com";
+
+        String corpo = """
+            {
+              "nome": "Nome Atualizado",
+              "email": "%s"
+            }
+            """.formatted(novoEmail);
+
+        mockMvc.perform(put("/usuarios/me")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(novoEmail));
+    }
+
     private String criarUsuario() throws Exception {
         String email = "mockmvc-" + UUID.randomUUID() + "@email.com";
         String corpo = """

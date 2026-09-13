@@ -69,6 +69,16 @@ public class UsuarioController {
         return usuarioService.atualizar(id, request);
     }
 
+    @PutMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    public UsuarioResponse atualizarMeuPerfil(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody AtualizarUsuarioRequest request
+    ) {
+        Long idUsuario = Long.valueOf(jwt.getSubject());
+        return usuarioService.atualizar(idUsuario, request);
+    }
+
     @SecurityRequirement(name = "bearerAuth")
     @PatchMapping("/{id}/ativo")
     public UsuarioResponse atualizarAtivo(
