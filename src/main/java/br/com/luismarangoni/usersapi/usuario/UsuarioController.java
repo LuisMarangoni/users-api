@@ -19,9 +19,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import br.com.luismarangoni.usersapi.perfil.NomePerfil;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.validation.Valid;
-import java.util.List;
+
+
 
 @RestController
 @RequestMapping("/usuarios")
@@ -35,8 +40,13 @@ public class UsuarioController {
 
     @GetMapping
     @SecurityRequirement(name = "bearerAuth")
-    public List<UsuarioResponse> listar() {
-        return usuarioService.listar();
+    public Page<UsuarioResponse> listar(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Boolean ativo,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        return usuarioService.listar(pageable, nome, email, ativo);
     }
 
     @SecurityRequirement(name = "bearerAuth")

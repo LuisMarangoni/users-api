@@ -11,7 +11,9 @@ import br.com.luismarangoni.usersapi.perfil.NomePerfil;
 import br.com.luismarangoni.usersapi.perfil.Perfil;
 import br.com.luismarangoni.usersapi.perfil.PerfilRepository;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import java.util.Locale;
 
 
@@ -33,11 +35,43 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<UsuarioResponse> listar() {
-        return usuarioRepository.findAll()
-                .stream()
-                .map(UsuarioResponse::from)
-                .toList();
+    public Page<UsuarioResponse> listar(
+            Pageable pageable,
+            String nome,
+            String email,
+            Boolean ativo
+    ) {
+        Specification<Usuario> filtros =
+                (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+
+        if (nome != null && !nome.isBlank()) {
+            String nomeNormalizado = nome.trim().toLowerCase(Locale.ROOT);
+            filtros = filtros.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(
+                            criteriaBuilder.lower(root.get("nome")),
+                            "%" + nomeNormalizado + "%"
+                    )
+            );
+        }
+
+        if (email != null && !email.isBlank()) {
+            String emailNormalizado = email.trim().toLowerCase(Locale.ROOT);
+            filtros = filtros.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(
+                            criteriaBuilder.lower(root.get("email")),
+                            "%" + emailNormalizado + "%"
+                    )
+            );
+        }
+
+        if (ativo != null) {
+            filtros = filtros.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("ativo"), ativo)
+            );
+        }
+
+        return usuarioRepository.findAll(filtros, pageable)
+                .map(UsuarioResponse::from);
     }
 
     public UsuarioResponse buscarPorId(Long id) {

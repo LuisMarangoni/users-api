@@ -170,6 +170,71 @@ class AutenticacaoControllerTest {
                 .andExpect(jsonPath("$.email").value(novoEmail));
     }
 
+    @Test
+    void devePaginarListagemDeUsuarios() throws Exception {
+        String emailSuporte = criarUsuario();
+        criarUsuario();
+        criarUsuario();
+
+        atribuirPerfil(emailSuporte, NomePerfil.SUPORTE);
+        String token = obterToken(emailSuporte, SENHA);
+
+        mockMvc.perform(get("/usuarios")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.totalPages").value(2));
+    }
+
+    @Test
+    void deveFiltrarUsuariosPorEmail() throws Exception {
+        String emailSuporte = criarUsuario();
+        String emailBuscado = criarUsuario();
+        criarUsuario();
+
+        atribuirPerfil(emailSuporte, NomePerfil.SUPORTE);
+        String token = obterToken(emailSuporte, SENHA);
+
+        mockMvc.perform(get("/usuarios")
+                        .param("email", emailBuscado)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].email").value(emailBuscado))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void deveCombinarFiltroPorNomeEStatusAtivo() throws Exception {
+        String emailSuporte = criarUsuario();
+        String emailAlvo = criarUsuario();
+        criarUsuario();
+
+        atribuirPerfil(emailSuporte, NomePerfil.SUPORTE);
+
+        Usuario alvo = usuarioRepository.findByEmailIgnoreCase(emailAlvo)
+                .orElseThrow();
+        alvo.atualizarDados("Cliente Inativo", emailAlvo);
+        alvo.atualizarAtivo(false);
+        usuarioRepository.save(alvo);
+
+        String token = obterToken(emailSuporte, SENHA);
+
+        mockMvc.perform(get("/usuarios")
+                        .param("nome", "inativo")
+                        .param("ativo", "false")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].nome").value("Cliente Inativo"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+
+
     private String criarUsuario() throws Exception {
         String email = "mockmvc-" + UUID.randomUUID() + "@email.com";
         String corpo = """
