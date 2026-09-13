@@ -233,7 +233,47 @@ class AutenticacaoControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(1));
     }
 
+    @Test
+    void deveRetornarBadRequestAoCadastrarComDadosInvalidos() throws Exception {
+        String corpo = """
+            {
+              "nome": "",
+              "email": "email-invalido",
+              "senha": "SenhaTeste123"
+            }
+            """;
 
+        mockMvc.perform(post("/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.campos.nome").exists())
+                .andExpect(jsonPath("$.campos.email").exists());
+    }
+
+    @Test
+    void deveRetornarConflictAoCadastrarEmailJaExistente() throws Exception {
+        String email = "duplicado-" + UUID.randomUUID() + "@email.com";
+
+        String corpo = """
+            {
+              "nome": "Usuario Teste",
+              "email": "%s",
+              "senha": "SenhaTeste123"
+            }
+            """.formatted(email);
+
+        mockMvc.perform(post("/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").exists());
+    }
 
     private String criarUsuario() throws Exception {
         String email = "mockmvc-" + UUID.randomUUID() + "@email.com";
